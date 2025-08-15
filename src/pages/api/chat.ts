@@ -1,5 +1,4 @@
-import { Configuration, OpenAIApi } from "openai";
-
+import { getChatResponse } from "@/features/chat/openAiChat";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
@@ -11,28 +10,26 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const apiKey = req.body.apiKey || process.env.OPEN_AI_KEY;
+  const baseUrl = req.body.baseUrl;
+  const model = req.body.model;
 
-  if (!apiKey) {
+  if (!apiKey && !baseUrl) {
     res
       .status(400)
-      .json({ message: "APIキーが間違っているか、設定されていません。" });
-
+      .json({ message: "APIキーまたはベースURLが設定されていません。" });
     return;
   }
 
-  const configuration = new Configuration({
-    apiKey: apiKey,
-  });
-
-  const openai = new OpenAIApi(configuration);
-
-  const { data } = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: req.body.messages,
-  });
-
-  const [aiRes] = data.choices;
-  const message = aiRes.message?.content || "エラーが発生しました";
-
-  res.status(200).json({ message: message });
+  try {
+    const message = await getChatResponse(
+      req.body.messages,
+      apiKey,
+      baseUrl,
+      model
+    );
+    res.status(200).json(message);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "エラーが発生しました。" });
+  }
 }

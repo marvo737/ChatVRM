@@ -20,6 +20,7 @@ ChatVRMの各機能は主に以下の技術を使用しています。
     - [Web Speech API(SpeechRecognition)](https://developer.mozilla.org/ja/docs/Web/API/SpeechRecognition)
 - 返答文の生成
     - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat)
+    - [LM Studio](https://lmstudio.ai/)
 - 読み上げ音声の生成
     - [VOICEVOX](https://voicevox.hiroshiba.jp/)
 - 3Dキャラクターの表示

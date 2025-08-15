@@ -7,11 +7,15 @@ import { VOICEVOX_SPEAKERS } from "@/features/constants/voicevoxSpeakers";
 
 type Props = {
   openAiKey: string;
+  lmStudioUrl: string;
+  lmStudioModel: string;
   systemPrompt: string;
   chatLog: Message[];
   speakerId: number;
   onClickClose: () => void;
   onChangeAiKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeLmStudioUrl: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeSystemPrompt: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onClickOpenVrmFile: () => void;
@@ -21,18 +25,37 @@ type Props = {
 };
 export const Settings = ({
   openAiKey,
+  lmStudioUrl,
+  lmStudioModel,
   chatLog,
   systemPrompt,
   speakerId,
   onClickClose,
   onChangeSystemPrompt,
   onChangeAiKey,
+  onChangeLmStudioUrl,
+  onChangeLmStudioModel,
   onChangeChatLog,
   onClickOpenVrmFile,
   onClickResetChatLog,
   onClickResetSystemPrompt,
   onChangeSpeakerId,
 }: Props) => {
+  const [models, setModels] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    if (lmStudioUrl) {
+      fetch(`/api/lm-studio-models?baseUrl=${encodeURIComponent(lmStudioUrl)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.models) {
+            setModels(data.models.map((m: any) => m.id));
+          }
+        })
+        .catch(console.error);
+    }
+  }, [lmStudioUrl]);
+
   return (
     <div className="absolute z-40 w-full h-full bg-white/80 backdrop-blur ">
       <div className="absolute m-24">
@@ -67,6 +90,38 @@ export const Settings = ({
               APIはブラウザから直接アクセスしています。また、APIキーや会話内容はピクシブのサーバには保存されません。
               <br />
               ※利用しているモデルはChatGPT API (GPT-3.5)です。
+            </div>
+          </div>
+          <div className="my-24">
+            <div className="my-16 typography-20 font-bold">LM Studio</div>
+            <div className="my-8">
+              <div className="typography-16 font-bold">API URL</div>
+              <input
+                className="text-ellipsis px-16 py-8 w-full bg-surface1 hover:bg-surface1-hover rounded-8"
+                type="text"
+                placeholder="http://localhost:1234/v1"
+                value={lmStudioUrl}
+                onChange={onChangeLmStudioUrl}
+              />
+            </div>
+            {models.length > 0 && (
+              <div className="my-8">
+                <div className="typography-16 font-bold">Model</div>
+                <select
+                  value={lmStudioModel}
+                  onChange={onChangeLmStudioModel}
+                  className="px-16 py-8 w-full bg-surface1 hover:bg-surface1-hover rounded-8"
+                >
+                  {models.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="my-8">
+              ローカルで起動したLM StudioのAPIエンドポイントとモデルを選択してください。
             </div>
           </div>
           <div className="my-40">

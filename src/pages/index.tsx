@@ -9,7 +9,6 @@ import {
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
-import { getChatResponseStream } from "@/features/chat/openAiChat";
 import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
 import { GitHubLink } from "@/components/githubLink";
@@ -20,6 +19,8 @@ export default function Home() {
 
   const [systemPrompt, setSystemPrompt] = useState(SYSTEM_PROMPT);
   const [openAiKey, setOpenAiKey] = useState("");
+  const [lmStudioUrl, setLmStudioUrl] = useState("");
+  const [lmStudioModel, setLmStudioModel] = useState("");
   const [speakerId, setSpeakerId] = useState(3);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
@@ -31,6 +32,8 @@ export default function Home() {
         window.localStorage.getItem("chatVRMParams") as string
       );
       setSystemPrompt(params.systemPrompt ?? SYSTEM_PROMPT);
+      setLmStudioUrl(params.lmStudioUrl ?? "");
+      setLmStudioModel(params.lmStudioModel ?? "");
       setSpeakerId(params.speakerId ?? 3);
       setChatLog(params.chatLog ?? []);
     }
@@ -40,10 +43,16 @@ export default function Home() {
     process.nextTick(() =>
       window.localStorage.setItem(
         "chatVRMParams",
-        JSON.stringify({ systemPrompt, speakerId, chatLog })
+        JSON.stringify({
+          systemPrompt,
+          lmStudioUrl,
+          lmStudioModel,
+          speakerId,
+          chatLog,
+        })
       )
     );
-  }, [systemPrompt, speakerId, chatLog]);
+  }, [systemPrompt, lmStudioUrl, lmStudioModel, speakerId, chatLog]);
 
   const handleChangeChatLog = useCallback(
     (targetIndex: number, text: string) => {
@@ -75,8 +84,8 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
-      if (!openAiKey) {
-        setAssistantMessage("APIキーが入力されていません");
+      if (!openAiKey && !lmStudioUrl) {
+        setAssistantMessage("APIキーまたはLM StudioのURLが入力されていません");
         return;
       }
 
@@ -101,18 +110,26 @@ export default function Home() {
         ...messageLog,
       ];
 
-      const stream = await getChatResponseStream(messages, openAiKey).catch(
-        (e) => {
-          console.error(e);
-          return null;
-        }
-      );
-      if (stream == null) {
+      const res = await fetch("/api/chat-stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages,
+          apiKey: openAiKey,
+          baseUrl: lmStudioUrl,
+          model: lmStudioUrl ? lmStudioModel : "gpt-3.5-turbo",
+        }),
+      });
+
+      if (!res.ok) {
+        console.error("Error from API:", await res.text());
         setChatProcessing(false);
         return;
       }
 
-      const reader = stream.getReader();
+      const reader = res.body!.getReader();
       let receivedMessage = "";
       let aiTextLog = "";
       let tag = "";
@@ -121,8 +138,8 @@ export default function Home() {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-
-          receivedMessage += value;
+          const decoder = new TextDecoder("utf-8");
+          receivedMessage += decoder.decode(value, { stream: true });
 
           // 返答内容のタグ部分の検出
           const tagMatch = receivedMessage.match(/^\[(.*?)\]/);
@@ -179,7 +196,15 @@ export default function Home() {
       setChatLog(messageLogAssistant);
       setChatProcessing(false);
     },
-    [systemPrompt, chatLog, handleSpeakAi, openAiKey, speakerId]
+    [
+      systemPrompt,
+      chatLog,
+      handleSpeakAi,
+      openAiKey,
+      lmStudioUrl,
+      lmStudioModel,
+      speakerId,
+    ]
   );
 
   return (
@@ -196,11 +221,15 @@ export default function Home() {
       />
       <Menu
         openAiKey={openAiKey}
+        lmStudioUrl={lmStudioUrl}
+        lmStudioModel={lmStudioModel}
         systemPrompt={systemPrompt}
         chatLog={chatLog}
         speakerId={speakerId}
         assistantMessage={assistantMessage}
         onChangeAiKey={setOpenAiKey}
+        onChangeLmStudioUrl={setLmStudioUrl}
+        onChangeLmStudioModel={(e) => setLmStudioModel(e.target.value)}
         onChangeSystemPrompt={setSystemPrompt}
         onChangeChatLog={handleChangeChatLog}
         onChangeSpeakerId={(e) => setSpeakerId(parseInt(e.target.value))}

@@ -8,12 +8,16 @@ import { AssistantText } from "./assistantText";
 
 type Props = {
   openAiKey: string;
+  lmStudioUrl: string;
+  lmStudioModel: string;
   systemPrompt: string;
   chatLog: Message[];
   speakerId: number;
   assistantMessage: string;
   onChangeSystemPrompt: (systemPrompt: string) => void;
   onChangeAiKey: (key: string) => void;
+  onChangeLmStudioUrl: (key: string) => void;
+  onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleClickResetChatLog: () => void;
@@ -21,12 +25,16 @@ type Props = {
 };
 export const Menu = ({
   openAiKey,
+  lmStudioUrl,
+  lmStudioModel,
   systemPrompt,
   chatLog,
   speakerId,
   assistantMessage,
   onChangeSystemPrompt,
   onChangeAiKey,
+  onChangeLmStudioUrl,
+  onChangeLmStudioModel,
   onChangeChatLog,
   onChangeSpeakerId,
   handleClickResetChatLog,
@@ -51,6 +59,12 @@ export const Menu = ({
     [onChangeAiKey]
   );
 
+  const handleLmStudioUrlChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChangeLmStudioUrl(event.target.value);
+    },
+    [onChangeLmStudioUrl]
+  );
 
   const handleClickOpenVrmFile = useCallback(() => {
     fileInputRef.current?.click();
@@ -109,11 +123,15 @@ export const Menu = ({
       {showSettings && (
         <Settings
           openAiKey={openAiKey}
+          lmStudioUrl={lmStudioUrl}
+          lmStudioModel={lmStudioModel}
           chatLog={chatLog}
           systemPrompt={systemPrompt}
           speakerId={speakerId}
           onClickClose={() => setShowSettings(false)}
           onChangeAiKey={handleAiKeyChange}
+          onChangeLmStudioUrl={handleLmStudioUrlChange}
+          onChangeLmStudioModel={onChangeLmStudioModel}
           onChangeSystemPrompt={handleChangeSystemPrompt}
           onChangeChatLog={onChangeChatLog}
           onChangeSpeakerId={onChangeSpeakerId}
