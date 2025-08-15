@@ -6,6 +6,7 @@ import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlug
 import { LipSync } from "../lipSync/lipSync";
 import { EmoteController } from "../emoteController/emoteController";
 import { Screenplay } from "../messages/messages";
+import { getAudioContext } from "../lipSync/audioContextManager";
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -20,7 +21,6 @@ export class Model {
 
   constructor(lookAtTargetParent: THREE.Object3D) {
     this._lookAtTargetParent = lookAtTargetParent;
-    this._lipSync = new LipSync(new AudioContext());
   }
 
   public async loadVRM(url: string): Promise<void> {
@@ -70,6 +70,9 @@ export class Model {
    * 音声を再生し、リップシンクを行う
    */
   public async speak(buffer: ArrayBuffer, screenplay: Screenplay) {
+    if (!this._lipSync) {
+      this._lipSync = new LipSync(getAudioContext());
+    }
     this.emoteController?.playEmotion(screenplay.expression);
     await new Promise((resolve) => {
       this._lipSync?.playFromArrayBuffer(buffer, () => {

@@ -1,0 +1,21 @@
+services:
+  voicevox_engine:
+    # CPU版を利用する場合
+    image: voicevox/voicevox_engine:cpu-latest
+
+    # GPU版を利用する場合（こちらはコメントアウトしたまま）
+    # image: voicevox/voicevox-engine:nvidia-ubuntu22.04-0.25.0-dev
+
+    container_name: voicevox_engine
+    ports:
+      - "50021:50021"
+
+    # GPU版の設定はコメントアウトしたまま
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    restart: always

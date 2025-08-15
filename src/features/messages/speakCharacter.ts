@@ -1,5 +1,5 @@
 import { wait } from "@/utils/wait";
-import { synthesizeVoiceApi } from "./synthesizeVoice";
+import { synthesizeVoice } from "./synthesizeVoice";
 import { Viewer } from "../vrmViewer/viewer";
 import { Screenplay } from "./messages";
 import { Talk } from "./messages";
@@ -12,7 +12,7 @@ const createSpeakCharacter = () => {
   return (
     screenplay: Screenplay,
     viewer: Viewer,
-    koeiroApiKey: string,
+    speakerId: number,
     onStart?: () => void,
     onComplete?: () => void
   ) => {
@@ -22,7 +22,7 @@ const createSpeakCharacter = () => {
         await wait(1000 - (now - lastTime));
       }
 
-      const buffer = await fetchAudio(screenplay.talk, koeiroApiKey).catch(
+      const buffer = await fetchAudio(screenplay.talk, speakerId).catch(
         () => null
       );
       lastTime = Date.now();
@@ -49,22 +49,14 @@ export const speakCharacter = createSpeakCharacter();
 
 export const fetchAudio = async (
   talk: Talk,
-  apiKey: string
+  speakerId: number
 ): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeVoiceApi(
-    talk.message,
-    talk.speakerX,
-    talk.speakerY,
-    talk.style,
-    apiKey
-  );
-  const url = ttsVoice.audio;
+  const blob = await synthesizeVoice(talk.message, speakerId);
 
-  if (url == null) {
+  if (blob == null) {
     throw new Error("Something went wrong");
   }
 
-  const resAudio = await fetch(url);
-  const buffer = await resAudio.arrayBuffer();
+  const buffer = await blob.arrayBuffer();
   return buffer;
 };

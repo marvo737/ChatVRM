@@ -21,7 +21,7 @@ ChatVRMの各機能は主に以下の技術を使用しています。
 - 返答文の生成
     - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat)
 - 読み上げ音声の生成
-    - [Koemotion/Koeiromap API](https://koemotion.rinna.co.jp/)
+    - [VOICEVOX](https://voicevox.hiroshiba.jp/)
 - 3Dキャラクターの表示
     - [@pixiv/three-vrm](https://github.com/pixiv/three-vrm)
 
@@ -37,7 +37,12 @@ git clone git@github.com:pixiv/ChatVRM.git
 npm install
 ```
 
-パッケージのインストールが完了した後、以下のコマンドで開発用のWebサーバーを起動します。
+次に、VOICEVOX ENGINEを起動します。
+```bash
+docker-compose up -d
+```
+
+VOICEVOX ENGINEの起動後、以下のコマンドで開発用のWebサーバーを起動します。
 ```bash
 npm run dev
 ```
@@ -59,9 +64,9 @@ ChatGPT APIの仕様や利用規約については以下のリンクや公式サ
 - [https://openai.com/policies/api-data-usage-policies](https://openai.com/policies/api-data-usage-policies)
 
 
-## Koeiromap API
-ChatVRMでは返答文の音声読み上げにKoemotionのKoeiromap APIを使用しています。
+## VOICEVOX
+ChatVRMでは返答文の音声読み上げにVOICEVOXを使用しています。
 
-Koeiromap APIの仕様や利用規約については以下のリンクや公式サイトをご確認ください。
+VOICEVOXの仕様や利用規約については以下のリンクや公式サイトをご確認ください。
 
-- [https://koemotion.rinna.co.jp/](https://koemotion.rinna.co.jp/)
+- [https://voicevox.hiroshiba.jp/](https://voicevox.hiroshiba.jp/)

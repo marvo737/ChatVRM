@@ -1,6 +1,5 @@
 import { IconButton } from "./iconButton";
 import { Message } from "@/features/messages/messages";
-import { KoeiroParam } from "@/features/constants/koeiroParam";
 import { ChatLog } from "./chatLog";
 import React, { useCallback, useContext, useRef, useState } from "react";
 import { Settings } from "./settings";
@@ -11,31 +10,27 @@ type Props = {
   openAiKey: string;
   systemPrompt: string;
   chatLog: Message[];
-  koeiroParam: KoeiroParam;
+  speakerId: number;
   assistantMessage: string;
-  koeiromapKey: string;
   onChangeSystemPrompt: (systemPrompt: string) => void;
   onChangeAiKey: (key: string) => void;
   onChangeChatLog: (index: number, text: string) => void;
-  onChangeKoeiromapParam: (param: KoeiroParam) => void;
+  onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleClickResetChatLog: () => void;
   handleClickResetSystemPrompt: () => void;
-  onChangeKoeiromapKey: (key: string) => void;
 };
 export const Menu = ({
   openAiKey,
   systemPrompt,
   chatLog,
-  koeiroParam,
+  speakerId,
   assistantMessage,
-  koeiromapKey,
   onChangeSystemPrompt,
   onChangeAiKey,
   onChangeChatLog,
-  onChangeKoeiromapParam,
+  onChangeSpeakerId,
   handleClickResetChatLog,
   handleClickResetSystemPrompt,
-  onChangeKoeiromapKey,
 }: Props) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
@@ -56,22 +51,6 @@ export const Menu = ({
     [onChangeAiKey]
   );
 
-  const handleChangeKoeiromapKey = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChangeKoeiromapKey(event.target.value);
-    },
-    [onChangeKoeiromapKey]
-  );
-
-  const handleChangeKoeiroParam = useCallback(
-    (x: number, y: number) => {
-      onChangeKoeiromapParam({
-        speakerX: x,
-        speakerY: y,
-      });
-    },
-    [onChangeKoeiromapParam]
-  );
 
   const handleClickOpenVrmFile = useCallback(() => {
     fileInputRef.current?.click();
@@ -132,17 +111,15 @@ export const Menu = ({
           openAiKey={openAiKey}
           chatLog={chatLog}
           systemPrompt={systemPrompt}
-          koeiroParam={koeiroParam}
-          koeiromapKey={koeiromapKey}
+          speakerId={speakerId}
           onClickClose={() => setShowSettings(false)}
           onChangeAiKey={handleAiKeyChange}
           onChangeSystemPrompt={handleChangeSystemPrompt}
           onChangeChatLog={onChangeChatLog}
-          onChangeKoeiroParam={handleChangeKoeiroParam}
+          onChangeSpeakerId={onChangeSpeakerId}
           onClickOpenVrmFile={handleClickOpenVrmFile}
           onClickResetChatLog={handleClickResetChatLog}
           onClickResetSystemPrompt={handleClickResetSystemPrompt}
-          onChangeKoeiromapKey={handleChangeKoeiromapKey}
         />
       )}
       {!showChatLog && assistantMessage && (
