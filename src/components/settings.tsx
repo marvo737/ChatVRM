@@ -44,7 +44,7 @@ export const Settings = ({
         .then((res) => res.json())
         .then((data) => {
           if (data.models) {
-            setModels(data.models.map((m: any) => m.id));
+            setModels(data.models.map((m: { id: string }) => m.id));
           }
         })
         .catch(console.error);
