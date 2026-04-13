@@ -98,7 +98,7 @@ export default function Home() {
       ];
       setChatLog(messageLog);
 
-      // Chat GPTへ
+      // LM Studioへ
       const messages: Message[] = [
         {
           role: "system",
