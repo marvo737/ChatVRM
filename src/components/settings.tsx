@@ -10,6 +10,7 @@ type Props = {
   systemPrompt: string;
   chatLog: Message[];
   speakerId: number;
+  whisperUrl: string;
   onClickClose: () => void;
   onChangeLmStudioUrl: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -19,6 +20,7 @@ type Props = {
   onClickResetChatLog: () => void;
   onClickResetSystemPrompt: () => void;
   onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChangeWhisperUrl: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 export const Settings = ({
   lmStudioUrl,
@@ -26,6 +28,7 @@ export const Settings = ({
   chatLog,
   systemPrompt,
   speakerId,
+  whisperUrl,
   onClickClose,
   onChangeSystemPrompt,
   onChangeLmStudioUrl,
@@ -35,6 +38,7 @@ export const Settings = ({
   onClickResetChatLog,
   onClickResetSystemPrompt,
   onChangeSpeakerId,
+  onChangeWhisperUrl,
 }: Props) => {
   const [models, setModels] = React.useState<string[]>([]);
 
@@ -93,6 +97,22 @@ export const Settings = ({
             )}
             <div className="my-8">
               ローカルで起動したLM StudioのAPIエンドポイントとモデルを選択してください。
+            </div>
+          </div>
+          <div className="my-24">
+            <div className="my-16 typography-20 font-bold">Faster-Whisper (STT)</div>
+            <div className="my-8">
+              <div className="typography-16 font-bold">API URL</div>
+              <input
+                className="text-ellipsis px-16 py-8 w-full bg-surface1 hover:bg-surface1-hover rounded-8"
+                type="text"
+                placeholder="http://localhost:8000"
+                value={whisperUrl}
+                onChange={onChangeWhisperUrl}
+              />
+            </div>
+            <div className="my-8">
+              OpenAI互換の音声認識サーバー（faster-whisper-server等）のURLを入力してください。
             </div>
           </div>
           <div className="my-40">

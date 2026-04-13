@@ -20,6 +20,7 @@ export default function Home() {
   const [systemPrompt, setSystemPrompt] = useState(SYSTEM_PROMPT);
   const [lmStudioUrl, setLmStudioUrl] = useState("");
   const [lmStudioModel, setLmStudioModel] = useState("");
+  const [whisperUrl, setWhisperUrl] = useState("");
   const [speakerId, setSpeakerId] = useState(3);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
@@ -34,6 +35,7 @@ export default function Home() {
       setSystemPrompt(params.systemPrompt ?? SYSTEM_PROMPT);
       setLmStudioUrl(params.lmStudioUrl ?? "");
       setLmStudioModel(params.lmStudioModel ?? "");
+      setWhisperUrl(params.whisperUrl ?? "");
       setSpeakerId(params.speakerId ?? 3);
       setChatLog(params.chatLog ?? []);
     }
@@ -47,12 +49,13 @@ export default function Home() {
           systemPrompt,
           lmStudioUrl,
           lmStudioModel,
+          whisperUrl,
           speakerId,
           chatLog,
         })
       )
     );
-  }, [systemPrompt, lmStudioUrl, lmStudioModel, speakerId, chatLog]);
+  }, [systemPrompt, lmStudioUrl, lmStudioModel, whisperUrl, speakerId, chatLog]);
 
   const handleChangeChatLog = useCallback(
     (targetIndex: number, text: string) => {
@@ -247,6 +250,7 @@ export default function Home() {
       <MessageInputContainer
         isChatProcessing={chatProcessing}
         isVisionEnabled={isVisionEnabled}
+        whisperUrl={whisperUrl}
         onChatProcessStart={handleSendChat}
         onToggleVision={handleToggleVision}
       />
@@ -259,6 +263,8 @@ export default function Home() {
         assistantMessage={assistantMessage}
         onChangeLmStudioUrl={setLmStudioUrl}
         onChangeLmStudioModel={(e) => setLmStudioModel(e.target.value)}
+        whisperUrl={whisperUrl}
+        onChangeWhisperUrl={setWhisperUrl}
         onChangeSystemPrompt={setSystemPrompt}
         onChangeChatLog={handleChangeChatLog}
         onChangeSpeakerId={(e) => setSpeakerId(parseInt(e.target.value))}

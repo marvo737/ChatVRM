@@ -13,6 +13,7 @@ type Props = {
   chatLog: Message[];
   speakerId: number;
   assistantMessage: string;
+  whisperUrl: string;
   onChangeSystemPrompt: (systemPrompt: string) => void;
   onChangeLmStudioUrl: (key: string) => void;
   onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -20,6 +21,7 @@ type Props = {
   onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleClickResetChatLog: () => void;
   handleClickResetSystemPrompt: () => void;
+  onChangeWhisperUrl: (url: string) => void;
 };
 export const Menu = ({
   lmStudioUrl,
@@ -28,6 +30,7 @@ export const Menu = ({
   chatLog,
   speakerId,
   assistantMessage,
+  whisperUrl,
   onChangeSystemPrompt,
   onChangeLmStudioUrl,
   onChangeLmStudioModel,
@@ -35,6 +38,7 @@ export const Menu = ({
   onChangeSpeakerId,
   handleClickResetChatLog,
   handleClickResetSystemPrompt,
+  onChangeWhisperUrl,
 }: Props) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
@@ -53,6 +57,13 @@ export const Menu = ({
       onChangeLmStudioUrl(event.target.value);
     },
     [onChangeLmStudioUrl]
+  );
+
+  const handleWhisperUrlChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChangeWhisperUrl(event.target.value);
+    },
+    [onChangeWhisperUrl]
   );
 
   const handleClickOpenVrmFile = useCallback(() => {
@@ -119,6 +130,8 @@ export const Menu = ({
           onClickClose={() => setShowSettings(false)}
           onChangeLmStudioUrl={handleLmStudioUrlChange}
           onChangeLmStudioModel={onChangeLmStudioModel}
+          whisperUrl={whisperUrl}
+          onChangeWhisperUrl={handleWhisperUrlChange}
           onChangeSystemPrompt={handleChangeSystemPrompt}
           onChangeChatLog={onChangeChatLog}
           onChangeSpeakerId={onChangeSpeakerId}
