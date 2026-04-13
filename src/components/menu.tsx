@@ -7,7 +7,6 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { AssistantText } from "./assistantText";
 
 type Props = {
-  openAiKey: string;
   lmStudioUrl: string;
   lmStudioModel: string;
   systemPrompt: string;
@@ -15,7 +14,6 @@ type Props = {
   speakerId: number;
   assistantMessage: string;
   onChangeSystemPrompt: (systemPrompt: string) => void;
-  onChangeAiKey: (key: string) => void;
   onChangeLmStudioUrl: (key: string) => void;
   onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
@@ -24,7 +22,6 @@ type Props = {
   handleClickResetSystemPrompt: () => void;
 };
 export const Menu = ({
-  openAiKey,
   lmStudioUrl,
   lmStudioModel,
   systemPrompt,
@@ -32,7 +29,6 @@ export const Menu = ({
   speakerId,
   assistantMessage,
   onChangeSystemPrompt,
-  onChangeAiKey,
   onChangeLmStudioUrl,
   onChangeLmStudioModel,
   onChangeChatLog,
@@ -50,13 +46,6 @@ export const Menu = ({
       onChangeSystemPrompt(event.target.value);
     },
     [onChangeSystemPrompt]
-  );
-
-  const handleAiKeyChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChangeAiKey(event.target.value);
-    },
-    [onChangeAiKey]
   );
 
   const handleLmStudioUrlChange = useCallback(
@@ -122,14 +111,12 @@ export const Menu = ({
       {showChatLog && <ChatLog messages={chatLog} />}
       {showSettings && (
         <Settings
-          openAiKey={openAiKey}
           lmStudioUrl={lmStudioUrl}
           lmStudioModel={lmStudioModel}
           chatLog={chatLog}
           systemPrompt={systemPrompt}
           speakerId={speakerId}
           onClickClose={() => setShowSettings(false)}
-          onChangeAiKey={handleAiKeyChange}
           onChangeLmStudioUrl={handleLmStudioUrlChange}
           onChangeLmStudioModel={onChangeLmStudioModel}
           onChangeSystemPrompt={handleChangeSystemPrompt}

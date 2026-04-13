@@ -2,18 +2,15 @@ import React from "react";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
 import { Message } from "@/features/messages/messages";
-import { Link } from "./link";
 import { VOICEVOX_SPEAKERS } from "@/features/constants/voicevoxSpeakers";
 
 type Props = {
-  openAiKey: string;
   lmStudioUrl: string;
   lmStudioModel: string;
   systemPrompt: string;
   chatLog: Message[];
   speakerId: number;
   onClickClose: () => void;
-  onChangeAiKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onChangeLmStudioUrl: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeSystemPrompt: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -24,7 +21,6 @@ type Props = {
   onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 export const Settings = ({
-  openAiKey,
   lmStudioUrl,
   lmStudioModel,
   chatLog,
@@ -32,7 +28,6 @@ export const Settings = ({
   speakerId,
   onClickClose,
   onChangeSystemPrompt,
-  onChangeAiKey,
   onChangeLmStudioUrl,
   onChangeLmStudioModel,
   onChangeChatLog,
@@ -68,30 +63,6 @@ export const Settings = ({
       <div className="max-h-full overflow-auto">
         <div className="text-text1 max-w-3xl mx-auto px-24 py-64 ">
           <div className="my-24 typography-32 font-bold">設定</div>
-          <div className="my-24">
-            <div className="my-16 typography-20 font-bold">OpenAI API キー</div>
-            <input
-              className="text-ellipsis px-16 py-8 w-col-span-2 bg-surface1 hover:bg-surface1-hover rounded-8"
-              type="text"
-              placeholder="sk-..."
-              value={openAiKey}
-              onChange={onChangeAiKey}
-            />
-            <div>
-              APIキーは
-              <Link
-                url="https://platform.openai.com/account/api-keys"
-                label="OpenAIのサイト"
-              />
-              で取得できます。取得したAPIキーをフォームに入力してください。
-            </div>
-            <div className="my-16">
-              ChatGPT
-              APIはブラウザから直接アクセスしています。また、APIキーや会話内容はピクシブのサーバには保存されません。
-              <br />
-              ※利用しているモデルはChatGPT API (GPT-3.5)です。
-            </div>
-          </div>
           <div className="my-24">
             <div className="my-16 typography-20 font-bold">LM Studio</div>
             <div className="my-8">

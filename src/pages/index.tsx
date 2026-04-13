@@ -9,16 +9,13 @@ import {
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
-import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
-import { GitHubLink } from "@/components/githubLink";
 import { Meta } from "@/components/meta";
 
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
 
   const [systemPrompt, setSystemPrompt] = useState(SYSTEM_PROMPT);
-  const [openAiKey, setOpenAiKey] = useState("");
   const [lmStudioUrl, setLmStudioUrl] = useState("");
   const [lmStudioModel, setLmStudioModel] = useState("");
   const [speakerId, setSpeakerId] = useState(3);
@@ -84,8 +81,8 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
-      if (!openAiKey && !lmStudioUrl) {
-        setAssistantMessage("APIキーまたはLM StudioのURLが入力されていません");
+      if (!lmStudioUrl) {
+        setAssistantMessage("LM StudioのURLが入力されていません");
         return;
       }
 
@@ -117,9 +114,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           messages,
-          apiKey: openAiKey,
           baseUrl: lmStudioUrl,
-          model: lmStudioUrl ? lmStudioModel : "gpt-3.5-turbo",
+          model: lmStudioModel,
         }),
       });
 
@@ -200,7 +196,6 @@ export default function Home() {
       systemPrompt,
       chatLog,
       handleSpeakAi,
-      openAiKey,
       lmStudioUrl,
       lmStudioModel,
       speakerId,
@@ -210,24 +205,18 @@ export default function Home() {
   return (
     <div className={"font-M_PLUS_2"}>
       <Meta />
-      <Introduction
-        openAiKey={openAiKey}
-        onChangeAiKey={setOpenAiKey}
-      />
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
         onChatProcessStart={handleSendChat}
       />
       <Menu
-        openAiKey={openAiKey}
         lmStudioUrl={lmStudioUrl}
         lmStudioModel={lmStudioModel}
         systemPrompt={systemPrompt}
         chatLog={chatLog}
         speakerId={speakerId}
         assistantMessage={assistantMessage}
-        onChangeAiKey={setOpenAiKey}
         onChangeLmStudioUrl={setLmStudioUrl}
         onChangeLmStudioModel={(e) => setLmStudioModel(e.target.value)}
         onChangeSystemPrompt={setSystemPrompt}
@@ -236,7 +225,6 @@ export default function Home() {
         handleClickResetChatLog={() => setChatLog([])}
         handleClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
       />
-      <GitHubLink />
     </div>
   );
 }
