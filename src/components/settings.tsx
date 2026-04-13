@@ -1,7 +1,7 @@
 import React from "react";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
-import { Message } from "@/features/messages/messages";
+import { Message, ContentPart } from "@/features/messages/messages";
 import { VOICEVOX_SPEAKERS } from "@/features/constants/voicevoxSpeakers";
 
 type Props = {
@@ -155,7 +155,14 @@ export const Settings = ({
                         key={index}
                         className="bg-surface1 hover:bg-surface1-hover rounded-8 w-full px-16 py-8"
                         type="text"
-                        value={value.content}
+                        value={
+                          typeof value.content === "string"
+                            ? value.content
+                            : value.content
+                                .filter((part): part is ContentPart & { type: "text" } => part.type === "text")
+                                .map((part) => part.text)
+                                .join("")
+                        }
                         onChange={(event) => {
                           onChangeChatLog(index, event.target.value);
                         }}

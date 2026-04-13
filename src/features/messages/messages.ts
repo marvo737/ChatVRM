@@ -1,9 +1,16 @@
 import { VRMExpression, VRMExpressionPresetName } from "@pixiv/three-vrm";
 
 // ChatGPT API
+export type TextContentPart = { type: "text"; text: string };
+export type ImageContentPart = {
+  type: "image_url";
+  image_url: { url: string };
+};
+export type ContentPart = TextContentPart | ImageContentPart;
+
 export type Message = {
   role: "assistant" | "system" | "user";
-  content: string;
+  content: string | ContentPart[];
 };
 
 const talkStyles = [

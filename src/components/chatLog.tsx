@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Message } from "@/features/messages/messages";
+import { Message, ContentPart } from "@/features/messages/messages";
 type Props = {
   messages: Message[];
 };
@@ -23,9 +23,16 @@ export const ChatLog = ({ messages }: Props) => {
     <div className="absolute w-col-span-6 max-w-full h-[100svh] pb-64">
       <div className="max-h-full px-16 pt-104 pb-64 overflow-y-auto scroll-hidden">
         {messages.map((msg, i) => {
+          const displayText =
+            typeof msg.content === "string"
+              ? msg.content
+              : msg.content
+                  .filter((part): part is ContentPart & { type: "text" } => part.type === "text")
+                  .map((part) => part.text)
+                  .join("");
           return (
             <div key={i} ref={messages.length - 1 === i ? chatScrollRef : null}>
-              <Chat role={msg.role} message={msg.content} />
+              <Chat role={msg.role} message={displayText} />
             </div>
           );
         })}
