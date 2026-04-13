@@ -5,12 +5,14 @@ import {
   Message,
   textsToScreenplay,
   Screenplay,
+  ContentPart,
 } from "@/features/messages/messages";
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 import { Menu } from "@/components/menu";
 import { Meta } from "@/components/meta";
+import { startCamera, stopCamera, captureFrame } from "@/features/camera/camera";
 
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
@@ -22,6 +24,7 @@ export default function Home() {
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
+  const [isVisionEnabled, setIsVisionEnabled] = useState(false);
 
   useEffect(() => {
     if (window.localStorage.getItem("chatVRMParams")) {
@@ -76,6 +79,21 @@ export default function Home() {
     [viewer, speakerId]
   );
 
+  const handleToggleVision = useCallback(async () => {
+    if (isVisionEnabled) {
+      stopCamera();
+      setIsVisionEnabled(false);
+    } else {
+      try {
+        await startCamera();
+        setIsVisionEnabled(true);
+      } catch (e) {
+        console.error("Failed to start camera:", e);
+        setAssistantMessage("カメラの起動に失敗しました");
+      }
+    }
+  }, [isVisionEnabled]);
+
   /**
    * アシスタントとの会話を行う
    */
@@ -99,7 +117,7 @@ export default function Home() {
       setChatLog(messageLog);
 
       // LM Studioへ
-      const messages: Message[] = [
+      let messagesForApi: Message[] = [
         {
           role: "system",
           content: systemPrompt,
@@ -107,13 +125,32 @@ export default function Home() {
         ...messageLog,
       ];
 
+      if (isVisionEnabled) {
+        const frame = captureFrame();
+        if (frame) {
+          const lastUserMsg = messagesForApi[messagesForApi.length - 1];
+          const textContent =
+            typeof lastUserMsg.content === "string"
+              ? lastUserMsg.content
+              : "";
+          const contentParts: ContentPart[] = [
+            { type: "text", text: textContent },
+            { type: "image_url", image_url: { url: frame } },
+          ];
+          messagesForApi = [
+            ...messagesForApi.slice(0, -1),
+            { role: "user", content: contentParts },
+          ];
+        }
+      }
+
       const res = await fetch("/api/chat-stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages,
+          messages: messagesForApi,
           baseUrl: lmStudioUrl,
           model: lmStudioModel,
         }),
@@ -199,6 +236,7 @@ export default function Home() {
       lmStudioUrl,
       lmStudioModel,
       speakerId,
+      isVisionEnabled,
     ]
   );
 
@@ -208,7 +246,9 @@ export default function Home() {
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
+        isVisionEnabled={isVisionEnabled}
         onChatProcessStart={handleSendChat}
+        onToggleVision={handleToggleVision}
       />
       <Menu
         lmStudioUrl={lmStudioUrl}

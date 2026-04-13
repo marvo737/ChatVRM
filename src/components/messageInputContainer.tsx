@@ -3,7 +3,9 @@ import { useState, useEffect, useCallback } from "react";
 
 type Props = {
   isChatProcessing: boolean;
+  isVisionEnabled: boolean;
   onChatProcessStart: (text: string) => void;
+  onToggleVision: () => void;
 };
 
 /**
@@ -14,7 +16,9 @@ type Props = {
  */
 export const MessageInputContainer = ({
   isChatProcessing,
+  isVisionEnabled,
   onChatProcessStart,
+  onToggleVision,
 }: Props) => {
   const [userMessage, setUserMessage] = useState("");
   const [speechRecognition, setSpeechRecognition] =
@@ -88,9 +92,11 @@ export const MessageInputContainer = ({
       userMessage={userMessage}
       isChatProcessing={isChatProcessing}
       isMicRecording={isMicRecording}
+      isVisionEnabled={isVisionEnabled}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
       onClickMicButton={handleClickMicButton}
       onClickSendButton={handleClickSendButton}
+      onClickVisionToggle={onToggleVision}
     />
   );
 };
