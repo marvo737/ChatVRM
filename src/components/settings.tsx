@@ -6,6 +6,7 @@ import { VOICEVOX_SPEAKERS } from "@/features/constants/voicevoxSpeakers";
 
 type Props = {
   lmStudioUrl: string;
+  lmStudioApiKey: string;
   lmStudioModel: string;
   systemPrompt: string;
   chatLog: Message[];
@@ -13,17 +14,20 @@ type Props = {
   whisperUrl: string;
   onClickClose: () => void;
   onChangeLmStudioUrl: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeLmStudioApiKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeSystemPrompt: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onClickOpenVrmFile: () => void;
   onClickResetChatLog: () => void;
   onClickResetSystemPrompt: () => void;
+  onClickResetAllSettings: () => void;
   onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeWhisperUrl: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 export const Settings = ({
   lmStudioUrl,
+  lmStudioApiKey,
   lmStudioModel,
   chatLog,
   systemPrompt,
@@ -32,11 +36,13 @@ export const Settings = ({
   onClickClose,
   onChangeSystemPrompt,
   onChangeLmStudioUrl,
+  onChangeLmStudioApiKey,
   onChangeLmStudioModel,
   onChangeChatLog,
   onClickOpenVrmFile,
   onClickResetChatLog,
   onClickResetSystemPrompt,
+  onClickResetAllSettings,
   onChangeSpeakerId,
   onChangeWhisperUrl,
 }: Props) => {
@@ -44,7 +50,11 @@ export const Settings = ({
 
   React.useEffect(() => {
     if (lmStudioUrl) {
-      fetch(`/api/lm-studio-models?baseUrl=${encodeURIComponent(lmStudioUrl)}`)
+      const params = new URLSearchParams({ baseUrl: lmStudioUrl });
+      if (lmStudioApiKey) {
+        params.set("apiKey", lmStudioApiKey);
+      }
+      fetch(`/api/lm-studio-models?${params.toString()}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.models) {
@@ -53,7 +63,7 @@ export const Settings = ({
         })
         .catch(console.error);
     }
-  }, [lmStudioUrl]);
+  }, [lmStudioUrl, lmStudioApiKey]);
 
   return (
     <div className="absolute z-40 w-full h-full bg-white/80 backdrop-blur ">
@@ -77,6 +87,16 @@ export const Settings = ({
                 placeholder="http://localhost:1234/v1"
                 value={lmStudioUrl}
                 onChange={onChangeLmStudioUrl}
+              />
+            </div>
+            <div className="my-8">
+              <div className="typography-16 font-bold">API Key</div>
+              <input
+                className="text-ellipsis px-16 py-8 w-full bg-surface1 hover:bg-surface1-hover rounded-8"
+                type="password"
+                placeholder="lm-studio（不要な場合は空欄）"
+                value={lmStudioApiKey}
+                onChange={onChangeLmStudioApiKey}
               />
             </div>
             {models.length > 0 && (
@@ -193,6 +213,11 @@ export const Settings = ({
               </div>
             </div>
           )}
+          <div className="my-40">
+            <TextButton onClick={onClickResetAllSettings}>
+              すべての設定をリセット
+            </TextButton>
+          </div>
         </div>
       </div>
     </div>

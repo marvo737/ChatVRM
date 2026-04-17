@@ -17,14 +17,24 @@ import { startCamera, stopCamera, captureFrame } from "@/features/camera/camera"
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
 
+  const envDefaults = {
+    lmStudioUrl: process.env.NEXT_PUBLIC_LM_STUDIO_URL ?? "",
+    lmStudioApiKey: process.env.NEXT_PUBLIC_LM_STUDIO_API_KEY ?? "",
+    lmStudioModel: process.env.NEXT_PUBLIC_LM_STUDIO_MODEL ?? "",
+    whisperUrl: process.env.NEXT_PUBLIC_WHISPER_URL ?? "http://localhost:8000",
+    speakerId: Number(process.env.NEXT_PUBLIC_VOICEVOX_SPEAKER_ID ?? "3"),
+  };
+
   const [systemPrompt, setSystemPrompt] = useState(SYSTEM_PROMPT);
-  const [lmStudioUrl, setLmStudioUrl] = useState("");
-  const [lmStudioModel, setLmStudioModel] = useState("");
-  const [whisperUrl, setWhisperUrl] = useState("");
-  const [speakerId, setSpeakerId] = useState(3);
+  const [lmStudioUrl, setLmStudioUrl] = useState(envDefaults.lmStudioUrl);
+  const [lmStudioApiKey, setLmStudioApiKey] = useState(envDefaults.lmStudioApiKey);
+  const [lmStudioModel, setLmStudioModel] = useState(envDefaults.lmStudioModel);
+  const [whisperUrl, setWhisperUrl] = useState(envDefaults.whisperUrl);
+  const [speakerId, setSpeakerId] = useState(envDefaults.speakerId);
   const [chatProcessing, setChatProcessing] = useState(false);
   const [chatLog, setChatLog] = useState<Message[]>([]);
   const [assistantMessage, setAssistantMessage] = useState("");
+  const [isSttEnabled, setIsSttEnabled] = useState(false);
   const [isVisionEnabled, setIsVisionEnabled] = useState(false);
 
   useEffect(() => {
@@ -33,10 +43,11 @@ export default function Home() {
         window.localStorage.getItem("chatVRMParams") as string
       );
       setSystemPrompt(params.systemPrompt ?? SYSTEM_PROMPT);
-      setLmStudioUrl(params.lmStudioUrl ?? "");
-      setLmStudioModel(params.lmStudioModel ?? "");
-      setWhisperUrl(params.whisperUrl ?? "");
-      setSpeakerId(params.speakerId ?? 3);
+      setLmStudioUrl(params.lmStudioUrl ?? envDefaults.lmStudioUrl);
+      setLmStudioApiKey(params.lmStudioApiKey ?? envDefaults.lmStudioApiKey);
+      setLmStudioModel(params.lmStudioModel ?? envDefaults.lmStudioModel);
+      setWhisperUrl(params.whisperUrl ?? envDefaults.whisperUrl);
+      setSpeakerId(params.speakerId ?? envDefaults.speakerId);
       setChatLog(params.chatLog ?? []);
     }
   }, []);
@@ -48,6 +59,7 @@ export default function Home() {
         JSON.stringify({
           systemPrompt,
           lmStudioUrl,
+          lmStudioApiKey,
           lmStudioModel,
           whisperUrl,
           speakerId,
@@ -55,7 +67,7 @@ export default function Home() {
         })
       )
     );
-  }, [systemPrompt, lmStudioUrl, lmStudioModel, whisperUrl, speakerId, chatLog]);
+  }, [systemPrompt, lmStudioUrl, lmStudioApiKey, lmStudioModel, whisperUrl, speakerId, chatLog]);
 
   const handleChangeChatLog = useCallback(
     (targetIndex: number, text: string) => {
@@ -81,6 +93,10 @@ export default function Home() {
     },
     [viewer, speakerId]
   );
+
+  const handleToggleStt = useCallback(() => {
+    setIsSttEnabled((prev) => !prev);
+  }, []);
 
   const handleToggleVision = useCallback(async () => {
     if (isVisionEnabled) {
@@ -154,6 +170,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           messages: messagesForApi,
+          apiKey: lmStudioApiKey,
           baseUrl: lmStudioUrl,
           model: lmStudioModel,
         }),
@@ -237,6 +254,7 @@ export default function Home() {
       chatLog,
       handleSpeakAi,
       lmStudioUrl,
+      lmStudioApiKey,
       lmStudioModel,
       speakerId,
       isVisionEnabled,
@@ -249,19 +267,23 @@ export default function Home() {
       <VrmViewer />
       <MessageInputContainer
         isChatProcessing={chatProcessing}
+        isSttEnabled={isSttEnabled}
         isVisionEnabled={isVisionEnabled}
         whisperUrl={whisperUrl}
         onChatProcessStart={handleSendChat}
+        onToggleStt={handleToggleStt}
         onToggleVision={handleToggleVision}
       />
       <Menu
         lmStudioUrl={lmStudioUrl}
+        lmStudioApiKey={lmStudioApiKey}
         lmStudioModel={lmStudioModel}
         systemPrompt={systemPrompt}
         chatLog={chatLog}
         speakerId={speakerId}
         assistantMessage={assistantMessage}
         onChangeLmStudioUrl={setLmStudioUrl}
+        onChangeLmStudioApiKey={setLmStudioApiKey}
         onChangeLmStudioModel={(e) => setLmStudioModel(e.target.value)}
         whisperUrl={whisperUrl}
         onChangeWhisperUrl={setWhisperUrl}
@@ -270,6 +292,10 @@ export default function Home() {
         onChangeSpeakerId={(e) => setSpeakerId(parseInt(e.target.value))}
         handleClickResetChatLog={() => setChatLog([])}
         handleClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
+        handleClickResetAllSettings={() => {
+          window.localStorage.removeItem("chatVRMParams");
+          window.location.reload();
+        }}
       />
     </div>
   );

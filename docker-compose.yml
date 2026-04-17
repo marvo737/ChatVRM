@@ -4,13 +4,7 @@ services:
     image: voicevox/voicevox_engine:cpu-latest
 
     # GPU版を利用する場合（こちらはコメントアウトしたまま）
-    # image: voicevox/voicevox-engine:nvidia-ubuntu22.04-0.25.0-dev
-
-    container_name: voicevox_engine
-    ports:
-      - "50021:50021"
-
-    # GPU版の設定はコメントアウトしたまま
+    # image: voicevox/voicevox_engine:nvidia-latest
     # deploy:
     #   resources:
     #     reservations:
@@ -18,4 +12,33 @@ services:
     #         - driver: nvidia
     #           count: 1
     #           capabilities: [gpu]
+
+    container_name: voicevox_engine
+    ports:
+      - "50021:50021"
+    restart: always
+
+  faster_whisper:
+    # CPU版を利用する場合
+    image: fedirz/faster-whisper-server:latest-cpu
+
+    # GPU版を利用する場合（こちらはコメントアウトしたまま）
+    # image: fedirz/faster-whisper-server:latest-cuda
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+    container_name: faster_whisper
+    ports:
+      - "8000:8000"
+    environment:
+      - WHISPER__MODEL=tiny
+      - WHISPER__INFERENCE_DEVICE=cpu
+      # GPU版の場合:
+      # - WHISPER__MODEL=large-v3
+      # - WHISPER__INFERENCE_DEVICE=cuda
     restart: always

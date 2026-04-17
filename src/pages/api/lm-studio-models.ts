@@ -16,6 +16,7 @@ export default async function handler(
   res: NextApiResponse<Data | { message: string }>
 ) {
   const baseUrl = req.query.baseUrl as string;
+  const apiKey = req.query.apiKey as string | undefined;
 
   if (!baseUrl) {
     res.status(400).json({ message: "baseUrl is required" });
@@ -23,18 +24,23 @@ export default async function handler(
   }
 
   try {
-    // baseUrl might contain paths like /chat/completions, remove them to get the base path
     const url = new URL(baseUrl);
     const modelsUrl = `${url.protocol}//${url.host}/v1/models`;
 
-    const response = await fetch(modelsUrl);
+    const headers: Record<string, string> = {};
+    if (apiKey) {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
+
+    const response = await fetch(modelsUrl, { headers });
     if (!response.ok) {
       throw new Error(`Failed to fetch models: ${response.statusText}`);
     }
     const data = await response.json();
     res.status(200).json({ models: data.data });
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch models";
     console.error(error);
-    res.status(500).json({ message: error.message || "Failed to fetch models" });
+    res.status(500).json({ message });
   }
 }

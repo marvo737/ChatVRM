@@ -9,12 +9,12 @@ export default async function handler(
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  const { messages, baseUrl, model } = req.body;
+  const { messages, apiKey, baseUrl, model } = req.body;
 
   try {
     const stream = await getChatResponseStream(
       messages,
-      "",
+      apiKey ?? "",
       baseUrl,
       model
     );

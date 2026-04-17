@@ -8,17 +8,21 @@ import {
 
 type Props = {
   isChatProcessing: boolean;
+  isSttEnabled: boolean;
   isVisionEnabled: boolean;
   whisperUrl: string;
   onChatProcessStart: (text: string) => void;
+  onToggleStt: () => void;
   onToggleVision: () => void;
 };
 
 export const MessageInputContainer = ({
   isChatProcessing,
+  isSttEnabled,
   isVisionEnabled,
   whisperUrl,
   onChatProcessStart,
+  onToggleStt,
   onToggleVision,
 }: Props) => {
   const [userMessage, setUserMessage] = useState("");
@@ -68,10 +72,12 @@ export const MessageInputContainer = ({
       userMessage={userMessage}
       isChatProcessing={isChatProcessing}
       isMicRecording={isMicRecording || isTranscribing}
+      isSttEnabled={isSttEnabled}
       isVisionEnabled={isVisionEnabled}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
       onClickMicButton={handleClickMicButton}
       onClickSendButton={handleClickSendButton}
+      onClickSttToggle={onToggleStt}
       onClickVisionToggle={onToggleVision}
     />
   );

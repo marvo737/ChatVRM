@@ -60,11 +60,9 @@ export async function getChatResponseStream(
     model?: string;
     messages: Message[];
     stream: boolean;
-    max_tokens: number;
   } = {
     messages: messages,
     stream: true,
-    max_tokens: 200,
   };
 
   body.model = model || "gpt-3.5-turbo";
@@ -90,19 +88,32 @@ export async function getChatResponseStream(
   const stream = new ReadableStream({
     async start(controller: ReadableStreamDefaultController) {
       const decoder = new TextDecoder("utf-8");
+      let buffer = "";
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const data = decoder.decode(value);
-          const chunks = data
-            .split("data:")
-            .filter((val) => !!val && val.trim() !== "[DONE]");
-          for (const chunk of chunks) {
-            const json = JSON.parse(chunk);
-            const messagePiece = json.choices[0].delta.content;
-            if (!!messagePiece) {
-              controller.enqueue(messagePiece);
+          buffer += decoder.decode(value, { stream: true });
+
+          // SSEは行単位で処理する
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data:")) continue;
+
+            const jsonStr = trimmed.slice("data:".length).trim();
+            if (jsonStr === "[DONE]") continue;
+
+            try {
+              const json = JSON.parse(jsonStr);
+              const messagePiece = json.choices?.[0]?.delta?.content;
+              if (messagePiece) {
+                controller.enqueue(messagePiece);
+              }
+            } catch {
+              // JSONパース失敗は無視して次の行へ
             }
           }
         }

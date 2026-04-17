@@ -8,13 +8,14 @@ export async function startCamera(): Promise<void> {
   if (stream) return;
 
   stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "user", width: 640, height: 480 },
+    video: { width: { ideal: 640 }, height: { ideal: 480 } },
     audio: false,
   });
 
   videoElement = document.createElement("video");
   videoElement.srcObject = stream;
   videoElement.setAttribute("playsinline", "true");
+  videoElement.muted = true;
   await videoElement.play();
 }
 

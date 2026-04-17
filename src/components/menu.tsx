@@ -8,6 +8,7 @@ import { AssistantText } from "./assistantText";
 
 type Props = {
   lmStudioUrl: string;
+  lmStudioApiKey: string;
   lmStudioModel: string;
   systemPrompt: string;
   chatLog: Message[];
@@ -16,15 +17,18 @@ type Props = {
   whisperUrl: string;
   onChangeSystemPrompt: (systemPrompt: string) => void;
   onChangeLmStudioUrl: (key: string) => void;
+  onChangeLmStudioApiKey: (key: string) => void;
   onChangeLmStudioModel: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   onChangeChatLog: (index: number, text: string) => void;
   onChangeSpeakerId: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleClickResetChatLog: () => void;
   handleClickResetSystemPrompt: () => void;
+  handleClickResetAllSettings: () => void;
   onChangeWhisperUrl: (url: string) => void;
 };
 export const Menu = ({
   lmStudioUrl,
+  lmStudioApiKey,
   lmStudioModel,
   systemPrompt,
   chatLog,
@@ -33,11 +37,13 @@ export const Menu = ({
   whisperUrl,
   onChangeSystemPrompt,
   onChangeLmStudioUrl,
+  onChangeLmStudioApiKey,
   onChangeLmStudioModel,
   onChangeChatLog,
   onChangeSpeakerId,
   handleClickResetChatLog,
   handleClickResetSystemPrompt,
+  handleClickResetAllSettings,
   onChangeWhisperUrl,
 }: Props) => {
   const [showSettings, setShowSettings] = useState(false);
@@ -57,6 +63,13 @@ export const Menu = ({
       onChangeLmStudioUrl(event.target.value);
     },
     [onChangeLmStudioUrl]
+  );
+
+  const handleLmStudioApiKeyChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChangeLmStudioApiKey(event.target.value);
+    },
+    [onChangeLmStudioApiKey]
   );
 
   const handleWhisperUrlChange = useCallback(
@@ -123,12 +136,14 @@ export const Menu = ({
       {showSettings && (
         <Settings
           lmStudioUrl={lmStudioUrl}
+          lmStudioApiKey={lmStudioApiKey}
           lmStudioModel={lmStudioModel}
           chatLog={chatLog}
           systemPrompt={systemPrompt}
           speakerId={speakerId}
           onClickClose={() => setShowSettings(false)}
           onChangeLmStudioUrl={handleLmStudioUrlChange}
+          onChangeLmStudioApiKey={handleLmStudioApiKeyChange}
           onChangeLmStudioModel={onChangeLmStudioModel}
           whisperUrl={whisperUrl}
           onChangeWhisperUrl={handleWhisperUrlChange}
@@ -138,6 +153,7 @@ export const Menu = ({
           onClickOpenVrmFile={handleClickOpenVrmFile}
           onClickResetChatLog={handleClickResetChatLog}
           onClickResetSystemPrompt={handleClickResetSystemPrompt}
+          onClickResetAllSettings={handleClickResetAllSettings}
         />
       )}
       {!showChatLog && assistantMessage && (
